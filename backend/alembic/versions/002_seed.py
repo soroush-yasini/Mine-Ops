@@ -11,6 +11,7 @@ from typing import Sequence, Union
 from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
+from passlib.context import CryptContext
 
 revision: str = "002"
 down_revision: Union[str, None] = "001"
@@ -28,8 +29,9 @@ ST_CR_ID = uuid.UUID("00000000-0000-0000-0000-000000000022")
 ST_RC_ID = uuid.UUID("00000000-0000-0000-0000-000000000023")
 ST_L_ID = uuid.UUID("00000000-0000-0000-0000-000000000024")
 
-# bcrypt hash of "admin123"
-ADMIN_PASSWORD_HASH = "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW"
+# bcrypt hash of "admin123" — generated at migration time
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+ADMIN_PASSWORD_HASH = pwd_context.hash("admin123")
 
 
 def upgrade() -> None:

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback } from 'react'
-import axios from 'axios'
+import apiClient from '../api/client'
 
 interface User {
   username: string
@@ -29,14 +29,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const formData = new FormData()
     formData.append('username', username)
     formData.append('password', password)
-    const response = await axios.post('/api/v1/auth/login', formData)
+    const response = await apiClient.post('/auth/login', formData)
     const { access_token, role } = response.data
     const userData = { username, full_name: username, role }
     setToken(access_token)
     setUser(userData)
     localStorage.setItem('token', access_token)
     localStorage.setItem('user', JSON.stringify(userData))
-    axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`
   }, [])
 
   const logout = useCallback(() => {
@@ -44,14 +43,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null)
     localStorage.removeItem('token')
     localStorage.removeItem('user')
-    delete axios.defaults.headers.common['Authorization']
   }, [])
-
-  React.useEffect(() => {
-    if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
-    }
-  }, [token])
 
   return (
     <AuthContext.Provider value={{
