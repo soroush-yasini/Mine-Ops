@@ -5,3 +5,10 @@ __pycache__/
 *.egg-info/
 .venv/
 venv/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# Backend pycache
+backend/**/__pycache__/
