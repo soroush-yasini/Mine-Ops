@@ -50,6 +50,34 @@ def get_balance(db: Session, site_id: uuid.UUID | None = None) -> int:
     return int(result) if result is not None else 0
 
 
+def get_balance_before_page(
+    db: Session,
+    site_id: uuid.UUID | None = None,
+    page: int = 1,
+    size: int = 20,
+    date_from: date | None = None,
+    date_to: date | None = None,
+) -> int:
+    """Return the cumulative debit-credit balance for all rows preceding the current page."""
+    if page <= 1:
+        return 0
+    offset = (page - 1) * size
+    subq = db.query(GrindingCost.id)
+    if site_id:
+        subq = subq.filter(GrindingCost.site_id == site_id)
+    if date_from:
+        subq = subq.filter(GrindingCost.date_gregorian >= date_from)
+    if date_to:
+        subq = subq.filter(GrindingCost.date_gregorian <= date_to)
+    preceding_ids = [row[0] for row in subq.order_by(GrindingCost.date_gregorian.asc()).limit(offset).all()]
+    if not preceding_ids:
+        return 0
+    result = db.query(func.coalesce(func.sum(GrindingCost.debit - GrindingCost.credit), 0)).filter(
+        GrindingCost.id.in_(preceding_ids)
+    ).scalar()
+    return int(result) if result is not None else 0
+
+
 def create(db: Session, obj_in: GrindingCostCreate, created_by: uuid.UUID | None = None) -> GrindingCost:
     db_obj = GrindingCost(
         date_jalali=obj_in.date_jalali,

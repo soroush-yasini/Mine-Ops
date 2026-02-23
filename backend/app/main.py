@@ -54,12 +54,6 @@ app.include_router(grinding_costs.router, prefix=API_PREFIX)
 app.include_router(lab_batches.router, prefix=API_PREFIX)
 app.include_router(lab_assays.router, prefix=API_PREFIX)
 
-# StaticFiles mounted at startup after directory creation
-@app.on_event("startup")
-async def mount_uploads():
-    os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
-
-
 app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_DIR if os.path.exists(settings.UPLOAD_DIR) else "/tmp"), name="uploads")
 
 

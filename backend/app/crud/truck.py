@@ -22,7 +22,7 @@ def get_multi(
 ) -> tuple[list[Truck], int]:
     query = db.query(Truck)
     if active_only:
-        query = query.filter(Truck.is_active == True)
+        query = query.filter(Truck.is_active.is_(True))
     total = query.count()
     items = query.order_by(Truck.plate_number).offset((page - 1) * size).limit(size).all()
     return items, total

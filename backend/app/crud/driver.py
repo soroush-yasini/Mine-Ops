@@ -21,7 +21,7 @@ def get_multi(
     if search:
         query = query.filter(Driver.full_name.ilike(f"%{search}%"))
     if active_only:
-        query = query.filter(Driver.is_active == True)
+        query = query.filter(Driver.is_active.is_(True))
     total = query.count()
     items = query.order_by(Driver.full_name).offset((page - 1) * size).limit(size).all()
     return items, total

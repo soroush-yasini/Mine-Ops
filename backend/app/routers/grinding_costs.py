@@ -31,8 +31,10 @@ def list_costs(
     items, total = crud.get_multi(db, page=page, size=size, site_id=site_id, date_from=date_from, date_to=date_to)
     total_balance = crud.get_balance(db, site_id=site_id)
 
-    # Compute running balance per item
-    running = 0
+    # Compute running balance correctly: start from the cumulative balance of all
+    # records that precede this page (ordered by date_gregorian asc).
+    preceding_balance = crud.get_balance_before_page(db, site_id=site_id, page=page, size=size, date_from=date_from, date_to=date_to)
+    running = preceding_balance
     for item in items:
         running += (item.debit or 0) - (item.credit or 0)
         item.balance = running

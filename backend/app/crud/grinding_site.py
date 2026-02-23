@@ -22,7 +22,7 @@ def get_multi(
 ) -> tuple[list[GrindingSite], int]:
     query = db.query(GrindingSite)
     if active_only:
-        query = query.filter(GrindingSite.is_active == True)
+        query = query.filter(GrindingSite.is_active.is_(True))
     total = query.count()
     items = query.order_by(GrindingSite.code).offset((page - 1) * size).limit(size).all()
     return items, total
