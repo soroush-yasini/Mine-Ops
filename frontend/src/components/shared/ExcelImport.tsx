@@ -5,7 +5,7 @@ import {
   TableCell, TableBody, Alert, CircularProgress, Chip,
 } from '@mui/material'
 import UploadFileIcon from '@mui/icons-material/UploadFile'
-import * as XLSX from 'xlsx'
+import readXlsxFile from 'read-excel-file'
 
 interface ExcelImportProps {
   open: boolean
@@ -23,25 +23,31 @@ export default function ExcelImport({ open, onClose, onImport, columns, title = 
   const [result, setResult] = useState<{ success: number; errors: string[] } | null>(null)
   const [parseError, setParseError] = useState('')
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
     setFileName(file.name)
     setResult(null)
     setParseError('')
-    const reader = new FileReader()
-    reader.onload = (ev) => {
-      try {
-        const data = ev.target?.result
-        const wb = XLSX.read(data, { type: 'binary' })
-        const ws = wb.Sheets[wb.SheetNames[0]]
-        const json = XLSX.utils.sheet_to_json<Record<string, unknown>>(ws)
-        setRows(json)
-      } catch {
-        setParseError('خطا در خواندن فایل Excel')
+    try {
+      const rawRows = await readXlsxFile(file)
+      if (rawRows.length < 2) {
+        setParseError('فایل Excel خالی است یا فاقد ردیف داده است')
+        return
       }
+      // First row is headers; map subsequent rows to objects
+      const headers = rawRows[0].map((h) => String(h ?? ''))
+      const dataRows = rawRows.slice(1).map((row) => {
+        const obj: Record<string, unknown> = {}
+        headers.forEach((header, idx) => {
+          obj[header] = row[idx] ?? ''
+        })
+        return obj
+      })
+      setRows(dataRows)
+    } catch {
+      setParseError('خطا در خواندن فایل Excel')
     }
-    reader.readAsBinaryString(file)
   }
 
   const handleImport = async () => {
