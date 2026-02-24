@@ -14,11 +14,16 @@ const TABS: { key: TabKey; label: string; endpoint: string; template: string }[]
   { key: 'drivers', label: fa.import.drivers, endpoint: '/import/drivers', template: '/templates/drivers_template.csv' },
 ]
 
+interface ImportError {
+  row: number
+  reason: string
+}
+
 interface ImportResult {
   total: number
   imported: number
   skipped: number
-  errors: string[]
+  errors: ImportError[]
 }
 
 function ImportTab({ tab }: { tab: typeof TABS[number] }) {
@@ -140,7 +145,11 @@ function ImportTab({ tab }: { tab: typeof TABS[number] }) {
             <div className="mt-3">
               <p className="text-sm font-medium text-red-700 mb-1">{fa.import.results.errors}:</p>
               <ul className="text-xs text-red-600 space-y-0.5 max-h-32 overflow-y-auto">
-                {result.errors.map((e, i) => <li key={i} className="bg-white rounded px-2 py-1 border border-red-100">{e}</li>)}
+                {result.errors.map((error, i) => (
+                  <li key={i} className="text-sm text-red-600 bg-white rounded px-2 py-1 border border-red-100">
+                    ردیف {error.row}: {error.reason}
+                  </li>
+                ))}
               </ul>
             </div>
           )}

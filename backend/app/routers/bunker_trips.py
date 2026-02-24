@@ -40,7 +40,7 @@ async def create_bunker_trip(data: BunkerTripCreate, db: AsyncSession = Depends(
     obj = BunkerTrip(**data.model_dump())
     obj.computed_total_amount = int((obj.tonnage_kg / 1000) * obj.freight_rate_per_ton)
     if obj.recorded_total_amount:
-        obj.tonnage_discrepancy = ((obj.recorded_total_amount / obj.freight_rate_per_ton) * 1000) - obj.tonnage_kg
+        obj.tonnage_discrepancy_kg = ((obj.recorded_total_amount / obj.freight_rate_per_ton) * 1000) - obj.tonnage_kg
     db.add(obj)
     await db.commit()
     await db.refresh(obj)

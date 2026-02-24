@@ -6,11 +6,11 @@ from datetime import date, time, datetime
 class BunkerTripBase(BaseModel):
     date: date
     time: Optional[time] = None
-    truck_id: int
-    driver_id: int
+    truck_id: Optional[int] = None
+    driver_id: Optional[int] = None
     receipt_number: int
     tonnage_kg: float
-    origin_facility_id: int
+    origin_facility_id: Optional[int] = None
     freight_rate_per_ton: int = 2800000
     recorded_total_amount: Optional[int] = None
     bol_image: Optional[str] = None
@@ -18,7 +18,9 @@ class BunkerTripBase(BaseModel):
 
 
 class BunkerTripCreate(BunkerTripBase):
-    pass
+    truck_id: int
+    driver_id: int
+    origin_facility_id: int
 
 
 class BunkerTripUpdate(BaseModel):
@@ -45,7 +47,7 @@ class BunkerTripPayment(BaseModel):
 class BunkerTripResponse(BunkerTripBase):
     id: int
     computed_total_amount: Optional[int] = None
-    tonnage_discrepancy: Optional[float] = None
+    tonnage_discrepancy_kg: Optional[float] = None
     is_paid: bool
     payment_date: Optional[date] = None
     payment_time: Optional[time] = None

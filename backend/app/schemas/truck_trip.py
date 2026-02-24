@@ -5,17 +5,19 @@ from datetime import date, time, datetime
 
 class TruckTripBase(BaseModel):
     date: date
-    truck_id: int
-    driver_id: int
+    truck_id: Optional[int] = None
+    driver_id: Optional[int] = None
     receipt_number: int
     tonnage_kg: float
-    destination_facility_id: int
+    destination_facility_id: Optional[int] = None
     freight_rate_per_ton: int = 8700000
     bol_image: Optional[str] = None
 
 
 class TruckTripCreate(TruckTripBase):
-    pass
+    truck_id: int
+    driver_id: int
+    destination_facility_id: int
 
 
 class TruckTripUpdate(BaseModel):
