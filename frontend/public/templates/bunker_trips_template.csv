@@ -1,0 +1,2 @@
+﻿date,time,truck_id,driver_id,receipt_number,tonnage_kg,origin_facility_id,freight_rate_per_ton,recorded_amount,notes
+1403/06/01,08:30,1,1,2001,12000,1,55000,,
