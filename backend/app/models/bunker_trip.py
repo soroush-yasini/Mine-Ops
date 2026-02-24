@@ -17,7 +17,7 @@ class BunkerTrip(Base):
     freight_rate_per_ton = Column(BigInteger, nullable=False, default=2800000)
     recorded_total_amount = Column(BigInteger, nullable=True)
     computed_total_amount = Column(BigInteger, nullable=True)
-    tonnage_discrepancy = Column(Float, nullable=True)
+    tonnage_discrepancy_kg = Column(Float, nullable=True)
     bol_image = Column(String, nullable=True)
     notes = Column(Text, nullable=True)
     is_paid = Column(Boolean, default=False)

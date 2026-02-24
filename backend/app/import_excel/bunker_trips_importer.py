@@ -97,7 +97,7 @@ async def import_bunker_trips(file: UploadFile = File(...), db: AsyncSession = D
             )
             obj.computed_total_amount = int((tonnage_kg / 1000) * freight_rate)
             if recorded_total:
-                obj.tonnage_discrepancy = ((recorded_total / freight_rate) * 1000) - tonnage_kg
+                obj.tonnage_discrepancy_kg = ((recorded_total / freight_rate) * 1000) - tonnage_kg
             db.add(obj)
             imported += 1
         except Exception as e:
