@@ -4,10 +4,12 @@ from sqlalchemy import select
 from ..core.database import get_db
 from ..models.bunker_trip import BunkerTrip
 from ..models.facility import GrindingFacility
+from ..models.truck import Truck
+from ..models.driver import Driver
 import io
 import pandas as pd
 import jdatetime
-from datetime import date
+from datetime import date, time as time_type
 
 router = APIRouter()
 
@@ -20,6 +22,8 @@ COLUMN_MAP = {
     "هزینه حمل هر تن": "freight_rate_per_ton",
     "مبلغ کل ثبت شده": "recorded_total_amount",
     "نام راننده": "driver_name",
+    "نام و نام خانوادگی راننده": "driver_name",
+    "ساعت": "time",
     "یادداشت": "notes",
 }
 
@@ -32,6 +36,18 @@ def parse_jalali_date(s) -> date:
             return jd.togregorian()
     except Exception:
         pass
+    return None
+
+
+def resolve_driver_id(name: str, drivers: dict):
+    """Return driver id for name, using exact match first then prefix (startswith) match."""
+    if not name:
+        return None
+    if name in drivers:
+        return drivers[name]
+    for full_name, driver_id in drivers.items():
+        if full_name.startswith(name):
+            return driver_id
     return None
 
 
@@ -51,6 +67,12 @@ async def import_bunker_trips(file: UploadFile = File(...), db: AsyncSession = D
 
     facilities_result = await db.execute(select(GrindingFacility))
     facilities = {f.code: f.id for f in facilities_result.scalars().all()}
+
+    trucks_result = await db.execute(select(Truck))
+    trucks = {str(t.plate_number): t.id for t in trucks_result.scalars().all()}
+
+    drivers_result = await db.execute(select(Driver))
+    drivers = {d.full_name: d.id for d in drivers_result.scalars().all()}
 
     for idx, row in df.iterrows():
         row_num = idx + 2
@@ -74,7 +96,9 @@ async def import_bunker_trips(file: UploadFile = File(...), db: AsyncSession = D
             tonnage_kg = float(str(row.get("tonnage_kg", 0)).replace(",", ""))
             origin_code = str(row.get("origin", "")).strip()
             facility_id = facilities.get(origin_code, 1)
-            freight_rate = int(row.get("freight_rate_per_ton", 2800000))
+
+            freight_rate_raw = row.get("freight_rate_per_ton", 2800000)
+            freight_rate = int(str(freight_rate_raw).replace(",", "")) if pd.notna(freight_rate_raw) else 2800000
 
             recorded_raw = row.get("recorded_total_amount")
             recorded_total = None
@@ -84,15 +108,40 @@ async def import_bunker_trips(file: UploadFile = File(...), db: AsyncSession = D
                 except Exception:
                     pass
 
+            plate_raw = row.get("plate_number")
+            truck_id = None
+            if pd.notna(plate_raw):
+                try:
+                    plate_str = str(int(float(str(plate_raw).replace(",", ""))))
+                    truck_id = trucks.get(plate_str)
+                except Exception:
+                    pass
+
+            driver_name_raw = row.get("driver_name")
+            driver_id = resolve_driver_id(
+                str(driver_name_raw) if pd.notna(driver_name_raw) else "", drivers
+            )
+
+            time_raw = row.get("time")
+            trip_time = None
+            if pd.notna(time_raw):
+                try:
+                    parts = str(time_raw).strip().split(":")
+                    if len(parts) >= 2:
+                        trip_time = time_type(int(parts[0]), int(parts[1]))
+                except Exception:
+                    pass
+
             obj = BunkerTrip(
                 date=parsed_date,
+                time=trip_time,
                 receipt_number=receipt_number,
                 tonnage_kg=tonnage_kg,
                 origin_facility_id=facility_id,
                 freight_rate_per_ton=freight_rate,
                 recorded_total_amount=recorded_total,
-                truck_id=None,
-                driver_id=None,
+                truck_id=truck_id,
+                driver_id=driver_id,
                 notes=str(row.get("notes", "")) if pd.notna(row.get("notes")) else None,
             )
             obj.computed_total_amount = int((tonnage_kg / 1000) * freight_rate)
