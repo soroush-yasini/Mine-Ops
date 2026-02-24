@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  font-family: 'Vazirmatn', sans-serif;
+}
+
+body {
+  direction: rtl;
+  background-color: #f8fafc;
+}
+
+:root {
+  --sidebar-width: 260px;
+}

@@ -12,3 +12,7 @@ frontend/dist/
 
 # Backend pycache
 backend/**/__pycache__/
+
+# Uploads (keep directory structure)
+uploads/*
+!uploads/**/.gitkeep
