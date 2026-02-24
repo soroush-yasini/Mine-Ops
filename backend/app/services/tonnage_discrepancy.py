@@ -15,7 +15,7 @@ async def compute_discrepancy(db: AsyncSession, ledger_entry) -> None:
             if ledger_entry.ledger_tonnage_kg is not None:
                 diff = ledger_entry.ledger_tonnage_kg - bunker_trip.tonnage_kg
                 ledger_entry.tonnage_discrepancy_kg = diff
-                ledger_entry.discrepancy_flag = abs(diff) > 0
+                ledger_entry.discrepancy_flag = abs(diff) > 0.001
             else:
                 ledger_entry.tonnage_discrepancy_kg = None
                 ledger_entry.discrepancy_flag = False

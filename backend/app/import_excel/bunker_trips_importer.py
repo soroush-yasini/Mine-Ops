@@ -91,8 +91,8 @@ async def import_bunker_trips(file: UploadFile = File(...), db: AsyncSession = D
                 origin_facility_id=facility_id,
                 freight_rate_per_ton=freight_rate,
                 recorded_total_amount=recorded_total,
-                truck_id=1,
-                driver_id=1,
+                truck_id=None,
+                driver_id=None,
                 notes=str(row.get("notes", "")) if pd.notna(row.get("notes")) else None,
             )
             obj.computed_total_amount = int((tonnage_kg / 1000) * freight_rate)

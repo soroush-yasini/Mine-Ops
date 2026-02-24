@@ -80,8 +80,8 @@ async def import_truck_trips(file: UploadFile = File(...), db: AsyncSession = De
                 tonnage_kg=tonnage_kg,
                 destination_facility_id=facility_id,
                 freight_rate_per_ton=int(row.get("freight_rate_per_ton", 8700000)),
-                truck_id=1,
-                driver_id=1,
+                truck_id=None,
+                driver_id=None,
             )
             obj.total_freight_cost = int((tonnage_kg / 1000) * obj.freight_rate_per_ton)
             db.add(obj)
