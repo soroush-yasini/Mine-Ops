@@ -5,7 +5,7 @@ import api from '../../lib/api'
 
 interface FileUploadProps {
   type: 'image' | 'pdf'
-  onUpload: (url: string, path: string) => void
+  onUpload: (url: string) => void
   currentUrl?: string | null
 }
 
@@ -19,7 +19,7 @@ export default function FileUpload({ type, onUpload, currentUrl }: FileUploadPro
       const { data } = await api.post(endpoint, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
-      onUpload(data.url, data.path)
+      onUpload(data.url)
     } catch (err) {
       console.error('Upload failed:', err)
     }

@@ -6,6 +6,7 @@ import { useFacilities } from '../../hooks/useFacilities'
 import JalaliDatePicker from '../../components/common/JalaliDatePicker'
 import FileUpload from '../../components/common/FileUpload'
 import StatusBadge from '../../components/common/StatusBadge'
+import { formatJalali } from '../../lib/jalali'
 import fa from '../../i18n/fa'
 import { X } from 'lucide-react'
 
@@ -264,12 +265,4 @@ export default function TruckTripForm({ trip, paymentMode, onClose }: TruckTripF
   )
 }
 
-function formatJalali(date: string | null | undefined): string {
-  if (!date) return '—'
-  try {
-    const d = new Date(date)
-    return d.toLocaleDateString('fa-IR')
-  } catch {
-    return date
-  }
-}
+
