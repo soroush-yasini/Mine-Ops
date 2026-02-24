@@ -1,11 +1,11 @@
 from pydantic import BaseModel
-from typing import Optional
-from datetime import date, time, datetime
+from typing import Optional, Union
+from datetime import date, time as dt_time, datetime
 
 
 class BunkerTripBase(BaseModel):
     date: date
-    time: Optional[time] = None
+    time: Union[dt_time, None] = None
     truck_id: Optional[int] = None
     driver_id: Optional[int] = None
     receipt_number: int
@@ -25,7 +25,7 @@ class BunkerTripCreate(BunkerTripBase):
 
 class BunkerTripUpdate(BaseModel):
     date: Optional[date] = None
-    time: Optional[time] = None
+    time: Union[dt_time, None] = None
     truck_id: Optional[int] = None
     driver_id: Optional[int] = None
     receipt_number: Optional[int] = None
@@ -39,7 +39,7 @@ class BunkerTripUpdate(BaseModel):
 
 class BunkerTripPayment(BaseModel):
     payment_date: date
-    payment_time: Optional[time] = None
+    payment_time: Union[dt_time, None] = None
     payment_receipt_image: Optional[str] = None
     payment_notes: Optional[str] = None
 
@@ -50,7 +50,7 @@ class BunkerTripResponse(BunkerTripBase):
     tonnage_discrepancy_kg: Optional[float] = None
     is_paid: bool
     payment_date: Optional[date] = None
-    payment_time: Optional[time] = None
+    payment_time: Union[dt_time, None] = None
     payment_receipt_image: Optional[str] = None
     payment_notes: Optional[str] = None
     status: str

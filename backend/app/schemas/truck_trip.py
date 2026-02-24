@@ -1,6 +1,6 @@
 from pydantic import BaseModel
-from typing import Optional
-from datetime import date, time, datetime
+from typing import Optional, Union
+from datetime import date, time as dt_time, datetime
 
 
 class TruckTripBase(BaseModel):
@@ -33,7 +33,7 @@ class TruckTripUpdate(BaseModel):
 
 class TruckTripPayment(BaseModel):
     payment_date: date
-    payment_time: Optional[time] = None
+    payment_time: Union[dt_time, None] = None
     payment_receipt_image: Optional[str] = None
     payment_notes: Optional[str] = None
 
@@ -43,7 +43,7 @@ class TruckTripResponse(TruckTripBase):
     total_freight_cost: Optional[int] = None
     is_paid: bool
     payment_date: Optional[date] = None
-    payment_time: Optional[time] = None
+    payment_time: Union[dt_time, None] = None
     payment_receipt_image: Optional[str] = None
     payment_notes: Optional[str] = None
     status: str
