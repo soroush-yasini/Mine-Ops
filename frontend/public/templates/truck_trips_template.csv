@@ -1,2 +1,2 @@
-﻿date,truck_id,driver_id,receipt_number,tonnage_kg,destination_facility_id,freight_rate_per_ton,bol_image,payment_date,payment_notes
-1403/06/01,1,1,1001,15000,1,50000,,,
+تاریخ,شماره ماشین,شماره قبض,تناژ,مقصد,هزینه حمل هر تن,نام راننده
+1403/06/01,14434,1001,15000.0,A,8700000,حمید دائمی ابراهیم زاده
