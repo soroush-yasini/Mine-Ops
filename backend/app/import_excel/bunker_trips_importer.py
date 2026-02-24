@@ -98,7 +98,10 @@ async def import_bunker_trips(file: UploadFile = File(...), db: AsyncSession = D
             facility_id = facilities.get(origin_code, 1)
 
             freight_rate_raw = row.get("freight_rate_per_ton", 2800000)
-            freight_rate = int(str(freight_rate_raw).replace(",", "")) if pd.notna(freight_rate_raw) else 2800000
+            try:
+                freight_rate = int(str(freight_rate_raw).replace(",", "")) if pd.notna(freight_rate_raw) else 2800000
+            except Exception:
+                freight_rate = 2800000
 
             recorded_raw = row.get("recorded_total_amount")
             recorded_total = None
@@ -132,6 +135,11 @@ async def import_bunker_trips(file: UploadFile = File(...), db: AsyncSession = D
                 except Exception:
                     pass
 
+            computed_total_amount = int((tonnage_kg / 1000) * freight_rate)
+            tonnage_discrepancy_kg = None
+            if recorded_total:
+                tonnage_discrepancy_kg = ((recorded_total / freight_rate) * 1000) - tonnage_kg
+
             obj = BunkerTrip(
                 date=parsed_date,
                 time=trip_time,
@@ -140,13 +148,12 @@ async def import_bunker_trips(file: UploadFile = File(...), db: AsyncSession = D
                 origin_facility_id=facility_id,
                 freight_rate_per_ton=freight_rate,
                 recorded_total_amount=recorded_total,
+                computed_total_amount=computed_total_amount,
+                tonnage_discrepancy_kg=tonnage_discrepancy_kg,
                 truck_id=truck_id,
                 driver_id=driver_id,
                 notes=str(row.get("notes", "")) if pd.notna(row.get("notes")) else None,
             )
-            obj.computed_total_amount = int((tonnage_kg / 1000) * freight_rate)
-            if recorded_total:
-                obj.tonnage_discrepancy_kg = ((recorded_total / freight_rate) * 1000) - tonnage_kg
             db.add(obj)
             imported += 1
         except Exception as e:
