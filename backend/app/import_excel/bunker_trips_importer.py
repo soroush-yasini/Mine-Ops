@@ -20,8 +20,8 @@ COLUMN_MAP = {
     "تناژ": "tonnage_kg",
     "مبدا": "origin",
     "هزینه حمل هر تن": "freight_rate_per_ton",
-    "مبلغ کل ثبت شده": "recorded_total_amount",
-    "مبلغ (ریال)": "recorded_total_amount",
+    "مبلغ کل ثبت شده": "total_amount",
+    "مبلغ (ریال)": "total_amount",
     "نام راننده": "driver_name",
     "نام و نام خانوادگی راننده": "driver_name",
     "ساعت": "time",
@@ -107,11 +107,11 @@ async def import_bunker_trips(file: UploadFile = File(...), db: AsyncSession = D
             except Exception:
                 freight_rate = 2800000
 
-            recorded_raw = row.get("recorded_total_amount")
-            recorded_total = None
+            recorded_raw = row.get("total_amount")
+            total_amount = None
             if pd.notna(recorded_raw):
                 try:
-                    recorded_total = int(float(str(recorded_raw).replace(",", "")))
+                    total_amount = int(float(str(recorded_raw).replace(",", "")))
                 except Exception:
                     pass
 
@@ -139,11 +139,6 @@ async def import_bunker_trips(file: UploadFile = File(...), db: AsyncSession = D
                 except Exception:
                     pass
 
-            computed_total_amount = int((tonnage_kg / 1000) * freight_rate)
-            tonnage_discrepancy_kg = None
-            if recorded_total:
-                tonnage_discrepancy_kg = ((recorded_total / freight_rate) * 1000) - tonnage_kg
-
             obj = BunkerTrip(
                 date=parsed_date,
                 time=trip_time,
@@ -151,9 +146,7 @@ async def import_bunker_trips(file: UploadFile = File(...), db: AsyncSession = D
                 tonnage_kg=tonnage_kg,
                 origin_facility_id=facility_id,
                 freight_rate_per_ton=freight_rate,
-                recorded_total_amount=recorded_total,
-                computed_total_amount=computed_total_amount,
-                tonnage_discrepancy_kg=tonnage_discrepancy_kg,
+                total_amount=total_amount,
                 truck_id=truck_id,
                 driver_id=driver_id,
                 notes=str(row.get("notes", "")) if pd.notna(row.get("notes")) else None,

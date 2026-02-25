@@ -12,8 +12,7 @@ class BunkerTripBase(BaseModel):
     tonnage_kg: float
     origin_facility_id: Optional[int] = None
     freight_rate_per_ton: int = 2800000
-    recorded_total_amount: Optional[int] = None
-    bol_image: Optional[str] = None
+    total_amount: Optional[int] = None
     notes: Optional[str] = None
 
 
@@ -32,8 +31,7 @@ class BunkerTripUpdate(BaseModel):
     tonnage_kg: Optional[float] = None
     origin_facility_id: Optional[int] = None
     freight_rate_per_ton: Optional[int] = None
-    recorded_total_amount: Optional[int] = None
-    bol_image: Optional[str] = None
+    total_amount: Optional[int] = None
     notes: Optional[str] = None
 
 
@@ -46,8 +44,6 @@ class BunkerTripPayment(BaseModel):
 
 class BunkerTripResponse(BunkerTripBase):
     id: int
-    computed_total_amount: Optional[int] = None
-    tonnage_discrepancy_kg: Optional[float] = None
     is_paid: bool
     payment_date: Optional[date] = None
     payment_time: Union[dt_time, None] = None
