@@ -21,10 +21,12 @@ COLUMN_MAP = {
     "مبدا": "origin",
     "هزینه حمل هر تن": "freight_rate_per_ton",
     "مبلغ کل ثبت شده": "recorded_total_amount",
+    "مبلغ (ریال)": "recorded_total_amount",
     "نام راننده": "driver_name",
     "نام و نام خانوادگی راننده": "driver_name",
     "ساعت": "time",
     "یادداشت": "notes",
+    "توضیحات": "notes",
 }
 
 
@@ -66,7 +68,9 @@ async def import_bunker_trips(file: UploadFile = File(...), db: AsyncSession = D
     errors = []
 
     facilities_result = await db.execute(select(GrindingFacility))
-    facilities = {f.code: f.id for f in facilities_result.scalars().all()}
+    facilities_list = facilities_result.scalars().all()
+    facilities_by_code = {f.code: f.id for f in facilities_list}
+    facilities_by_name = {f.name_fa: f.id for f in facilities_list}
 
     trucks_result = await db.execute(select(Truck))
     trucks = {str(t.plate_number): t.id for t in trucks_result.scalars().all()}
@@ -95,7 +99,7 @@ async def import_bunker_trips(file: UploadFile = File(...), db: AsyncSession = D
 
             tonnage_kg = float(str(row.get("tonnage_kg", 0)).replace(",", ""))
             origin_code = str(row.get("origin", "")).strip()
-            facility_id = facilities.get(origin_code, 1)
+            facility_id = facilities_by_code.get(origin_code) or facilities_by_name.get(origin_code) or 1
 
             freight_rate_raw = row.get("freight_rate_per_ton", 2800000)
             try:
