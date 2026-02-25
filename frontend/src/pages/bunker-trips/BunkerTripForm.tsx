@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import axios from 'axios'
 import { useCreateBunkerTrip, useUpdateBunkerTrip, usePayBunkerTrip, BunkerTrip } from '../../hooks/useBunkerTrips'
 import { useTrucks } from '../../hooks/useTrucks'
 import { useDrivers } from '../../hooks/useDrivers'
@@ -29,7 +30,7 @@ export default function BunkerTripForm({ trip, paymentMode, onClose }: BunkerTri
     tonnage_kg: trip?.tonnage_kg || 0,
     origin_facility_id: trip?.origin_facility_id || 0,
     freight_rate_per_ton: trip?.freight_rate_per_ton || 0,
-    recorded_amount: trip?.recorded_amount ?? null,
+    recorded_total_amount: trip?.recorded_total_amount ?? null,
     notes: trip?.notes || '',
     payment_date: trip?.payment_date || '',
     payment_notes: trip?.payment_notes || '',
@@ -67,7 +68,7 @@ export default function BunkerTripForm({ trip, paymentMode, onClose }: BunkerTri
           tonnage_kg: form.tonnage_kg,
           origin_facility_id: form.origin_facility_id,
           freight_rate_per_ton: form.freight_rate_per_ton,
-          recorded_amount: form.recorded_amount,
+          recorded_total_amount: form.recorded_total_amount,
           notes: form.notes || null,
           payment_date: null,
           payment_receipt_image: null,
@@ -75,8 +76,12 @@ export default function BunkerTripForm({ trip, paymentMode, onClose }: BunkerTri
         })
       }
       onClose()
-    } catch {
-      setError('خطا در ذخیره‌سازی')
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err) && err.response?.status === 409) {
+        setError(err.response.data?.detail || 'شماره قبض تکراری است')
+      } else {
+        setError('خطا در ذخیره‌سازی')
+      }
     }
   }
 
@@ -215,8 +220,8 @@ export default function BunkerTripForm({ trip, paymentMode, onClose }: BunkerTri
                 <label className="block text-sm font-medium text-gray-700 mb-1">{fa.bunkerTrips.recordedAmount}</label>
                 <input
                   type="number"
-                  value={form.recorded_amount ?? ''}
-                  onChange={e => setForm(f => ({ ...f, recorded_amount: e.target.value ? Number(e.target.value) : null }))}
+                  value={form.recorded_total_amount ?? ''}
+                  onChange={e => setForm(f => ({ ...f, recorded_total_amount: e.target.value ? Number(e.target.value) : null }))}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   dir="ltr"
                 />
