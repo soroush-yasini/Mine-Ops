@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from ..core.database import get_db
 from ..models.bunker_trip import BunkerTrip
 from ..schemas.bunker_trip import BunkerTripCreate, BunkerTripUpdate, BunkerTripPayment, BunkerTripResponse
@@ -37,12 +38,29 @@ async def list_bunker_trips(
 
 @router.post("/", response_model=BunkerTripResponse, status_code=201)
 async def create_bunker_trip(data: BunkerTripCreate, db: AsyncSession = Depends(get_db)):
+    existing = await db.execute(
+        select(BunkerTrip).where(BunkerTrip.receipt_number == data.receipt_number)
+    )
+    if existing.scalar_one_or_none():
+        raise HTTPException(
+            status_code=409,
+            detail=f"شماره قبض {data.receipt_number} قبلاً ثبت شده است"
+        )
     obj = BunkerTrip(**data.model_dump())
     obj.computed_total_amount = int((obj.tonnage_kg / 1000) * obj.freight_rate_per_ton)
     if obj.recorded_total_amount:
-        obj.tonnage_discrepancy_kg = ((obj.recorded_total_amount / obj.freight_rate_per_ton) * 1000) - obj.tonnage_kg
+        obj.tonnage_discrepancy_kg = (
+            (obj.recorded_total_amount / obj.freight_rate_per_ton) * 1000
+        ) - obj.tonnage_kg
     db.add(obj)
-    await db.commit()
+    try:
+        await db.commit()
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(
+            status_code=409,
+            detail=f"شماره قبض {data.receipt_number} قبلاً ثبت شده است"
+        )
     await db.refresh(obj)
     return obj
 
