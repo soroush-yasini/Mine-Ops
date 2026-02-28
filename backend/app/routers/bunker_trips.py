@@ -18,7 +18,6 @@ async def list_bunker_trips(
     facility_id: Optional[int] = None,
     driver_id: Optional[int] = None,
     is_paid: Optional[bool] = None,
-    has_discrepancy: Optional[bool] = None,
     db: AsyncSession = Depends(get_db)
 ):
     q = select(BunkerTrip)
