@@ -14,8 +14,9 @@ depends_on = None
 
 
 def upgrade() -> None:
-    op.alter_column('bunker_trips', 'tonnage_discrepancy', new_column_name='tonnage_discrepancy_kg')
+    # tonnage_discrepancy was removed in 0001 schema simplification; nothing to do
+    pass
 
 
 def downgrade() -> None:
-    op.alter_column('bunker_trips', 'tonnage_discrepancy_kg', new_column_name='tonnage_discrepancy')
+    pass
