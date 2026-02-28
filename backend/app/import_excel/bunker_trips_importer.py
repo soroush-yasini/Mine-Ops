@@ -29,7 +29,6 @@ COLUMN_MAP = {
     "توضیحات": "notes",
 }
 
-
 def parse_jalali_date(s) -> date:
     try:
         parts = str(s).strip().replace("/", "-").split("-")
@@ -39,7 +38,6 @@ def parse_jalali_date(s) -> date:
     except Exception:
         pass
     return None
-
 
 def resolve_driver_id(name: str, drivers: dict):
     """Return driver id for name, using exact match first then prefix (startswith) match."""
@@ -51,7 +49,6 @@ def resolve_driver_id(name: str, drivers: dict):
         if full_name.startswith(name):
             return driver_id
     return None
-
 
 @router.post("/bunker-trips")
 async def import_bunker_trips(file: UploadFile = File(...), db: AsyncSession = Depends(get_db)):
@@ -93,7 +90,7 @@ async def import_bunker_trips(file: UploadFile = File(...), db: AsyncSession = D
                 select(BunkerTrip).where(BunkerTrip.receipt_number == receipt_number)
             )
             if existing.scalar_one_or_none():
-                errors.append({"row": row_num, "reason": "duplicate receipt_number"})
+                errors.append({"row": row_num, "reason": f"duplicate receipt_number {receipt_number}"})
                 skipped += 1
                 continue
 
@@ -152,8 +149,10 @@ async def import_bunker_trips(file: UploadFile = File(...), db: AsyncSession = D
                 notes=str(row.get("notes", "")) if pd.notna(row.get("notes")) else None,
             )
             db.add(obj)
+            await db.flush()  # surface per-row DB errors immediately
             imported += 1
         except Exception as e:
+            await db.rollback()  # recover transaction so next row can proceed
             errors.append({"row": row_num, "reason": str(e)})
             skipped += 1
 
