@@ -30,7 +30,7 @@ export default function BunkerTripForm({ trip, paymentMode, onClose }: BunkerTri
     tonnage_kg: trip?.tonnage_kg || 0,
     origin_facility_id: trip?.origin_facility_id || 0,
     freight_rate_per_ton: trip?.freight_rate_per_ton || 0,
-    recorded_total_amount: trip?.recorded_total_amount ?? null,
+    total_amount: trip?.total_amount ?? null,
     notes: trip?.notes || '',
     payment_date: trip?.payment_date || '',
     payment_notes: trip?.payment_notes || '',
@@ -68,7 +68,7 @@ export default function BunkerTripForm({ trip, paymentMode, onClose }: BunkerTri
           tonnage_kg: form.tonnage_kg,
           origin_facility_id: form.origin_facility_id,
           freight_rate_per_ton: form.freight_rate_per_ton,
-          recorded_total_amount: form.recorded_total_amount,
+          total_amount: form.total_amount,
           notes: form.notes || null,
           payment_date: null,
           payment_receipt_image: null,
@@ -182,11 +182,11 @@ export default function BunkerTripForm({ trip, paymentMode, onClose }: BunkerTri
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">{fa.bunkerTrips.tonnage} *</label>
                   <input
-                    type="number"
-                    value={form.tonnage_kg || ''}
-                    onChange={e => setForm(f => ({ ...f, tonnage_kg: Number(e.target.value) }))}
+                    type="text"
+                    value={form.tonnage_kg ? form.tonnage_kg.toLocaleString('en') : ''}
+                    onChange={e => { const raw = Number(e.target.value.replace(/,/g, '')); if (!isNaN(raw)) setForm(f => ({ ...f, tonnage_kg: raw })) }}
                     className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required dir="ltr" min="0"
+                    required dir="ltr"
                   />
                 </div>
               </div>
@@ -208,20 +208,20 @@ export default function BunkerTripForm({ trip, paymentMode, onClose }: BunkerTri
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">{fa.bunkerTrips.freightRate} *</label>
                   <input
-                    type="number"
-                    value={form.freight_rate_per_ton || ''}
-                    onChange={e => setForm(f => ({ ...f, freight_rate_per_ton: Number(e.target.value) }))}
+                    type="text"
+                    value={form.freight_rate_per_ton ? form.freight_rate_per_ton.toLocaleString('en') : ''}
+                    onChange={e => { const raw = Number(e.target.value.replace(/,/g, '')); if (!isNaN(raw)) setForm(f => ({ ...f, freight_rate_per_ton: raw })) }}
                     className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required dir="ltr" min="0"
+                    required dir="ltr"
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{fa.bunkerTrips.recordedAmount}</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{fa.bunkerTrips.totalAmount}</label>
                 <input
-                  type="number"
-                  value={form.recorded_total_amount ?? ''}
-                  onChange={e => setForm(f => ({ ...f, recorded_total_amount: e.target.value ? Number(e.target.value) : null }))}
+                  type="text"
+                  value={form.total_amount != null ? form.total_amount.toLocaleString('en') : ''}
+                  onChange={e => { const raw = e.target.value.replace(/,/g, ''); setForm(f => ({ ...f, total_amount: raw ? Number(raw) : null })) }}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   dir="ltr"
                 />
@@ -244,9 +244,6 @@ export default function BunkerTripForm({ trip, paymentMode, onClose }: BunkerTri
                 <div className="bg-gray-50 rounded-lg p-4 text-sm text-gray-600 space-y-1">
                   <div><span className="font-medium">تاریخ: </span>{new Date(trip.date).toLocaleDateString('fa-IR')}</div>
                   <div><span className="font-medium">تناژ: </span>{trip.tonnage_kg.toLocaleString('fa-IR')} کگ</div>
-                  {trip.tonnage_discrepancy_kg !== null && trip.tonnage_discrepancy_kg !== 0 && (
-                    <div className="text-orange-600"><span className="font-medium">اختلاف: </span>{trip.tonnage_discrepancy_kg.toLocaleString('fa-IR')} کگ</div>
-                  )}
                 </div>
               )}
               <div>

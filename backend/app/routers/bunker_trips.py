@@ -47,11 +47,6 @@ async def create_bunker_trip(data: BunkerTripCreate, db: AsyncSession = Depends(
             detail=f"شماره قبض {data.receipt_number} قبلاً ثبت شده است"
         )
     obj = BunkerTrip(**data.model_dump())
-    obj.computed_total_amount = int((obj.tonnage_kg / 1000) * obj.freight_rate_per_ton)
-    if obj.recorded_total_amount:
-        obj.tonnage_discrepancy_kg = (
-            (obj.recorded_total_amount / obj.freight_rate_per_ton) * 1000
-        ) - obj.tonnage_kg
     db.add(obj)
     try:
         await db.commit()
@@ -82,7 +77,6 @@ async def update_bunker_trip(id: int, data: BunkerTripUpdate, db: AsyncSession =
         raise HTTPException(status_code=404, detail="Not found")
     for k, v in data.model_dump(exclude_unset=True).items():
         setattr(obj, k, v)
-    obj.computed_total_amount = int((obj.tonnage_kg / 1000) * obj.freight_rate_per_ton)
     await db.commit()
     await db.refresh(obj)
     return obj

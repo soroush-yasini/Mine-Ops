@@ -43,16 +43,7 @@ export default function BunkerTripsPage() {
       cell: ({ row }) => <TonnageCell valueKg={row.original.tonnage_kg} />
     },
     { id: 'origin', header: fa.bunkerTrips.origin, cell: ({ row }) => facilityMap[row.original.origin_facility_id] || row.original.origin_facility_id },
-    { accessorKey: 'computed_amount', header: fa.bunkerTrips.computedAmount, cell: ({ getValue }) => formatCurrency(getValue() as number | null) },
-    {
-      id: 'discrepancy',
-      header: fa.bunkerTrips.discrepancy,
-      cell: ({ row }) => {
-        const d = row.original.tonnage_discrepancy_kg
-        if (!d) return '—'
-        return <span className={d !== 0 ? 'text-orange-600 font-medium' : ''}>{d.toLocaleString('fa-IR')} کگ</span>
-      }
-    },
+    { accessorKey: 'total_amount', header: fa.bunkerTrips.totalAmount, cell: ({ getValue }) => formatCurrency(getValue() as number | null) },
     {
       id: 'status',
       header: fa.common.status,

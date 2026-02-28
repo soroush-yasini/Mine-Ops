@@ -11,9 +11,7 @@ export interface BunkerTrip {
   tonnage_kg: number
   origin_facility_id: number
   freight_rate_per_ton: number
-  recorded_total_amount: number | null
-  computed_total_amount: number | null
-  tonnage_discrepancy_kg: number | null
+  total_amount: number | null
   notes: string | null
   is_paid: boolean
   payment_date: string | null
@@ -35,7 +33,7 @@ export function useBunkerTrips(filters?: Record<string, string | boolean | undef
 export function useCreateBunkerTrip() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (data: Omit<BunkerTrip, 'id' | 'computed_total_amount' | 'tonnage_discrepancy_kg' | 'is_paid' | 'status'>) =>
+    mutationFn: (data: Omit<BunkerTrip, 'id' | 'is_paid' | 'status'>) =>
       api.post('/bunker-trips/', data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['bunker-trips'] }),
   })
